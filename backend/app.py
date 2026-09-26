@@ -1,21 +1,23 @@
 import os, time, threading, uuid, json, requests
 import google.generativeai as genai
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from services.prompt_templates import detect_language, build_image_prompt, build_video_prompt, build_audio_prompt
 
-app = Flask(__name__, static_folder='../frontend/static', template_folder='../frontend/templates')
+app = Flask(__name__)
+CORS(app)
 video_jobs = {}
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'static', 'uploads')
+
+# Ensure static directories exist
+STATIC_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'static')
+UPLOAD_FOLDER = os.path.join(STATIC_FOLDER, 'uploads')
+OUTPUT_FOLDER = os.path.join(STATIC_FOLDER, 'output')
+PREBAKED_FOLDER = os.path.join(STATIC_FOLDER, 'prebaked')
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-@app.route('/')
-def index():
-    return send_from_directory('../frontend/templates', 'index.html')
-
-@app.route('/static/<path:path>')
-def serve_static(path):
-    return send_from_directory('../frontend/static', path)
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+os.makedirs(PREBAKED_FOLDER, exist_ok=True)
 
 @app.route('/api/campaign/create', methods=['POST'])
 def create_campaign():
@@ -99,4 +101,5 @@ def generate_music(id):
 def get_final(id): return jsonify({'video_url': '/static/output/final_video.mp4', 'audio_url': '/static/output/bgm.mp3', 'images': [], 'status': 'ready'})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # Use 0.0.0.0 instead of localhost/127.0.0.1 for deployment
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
