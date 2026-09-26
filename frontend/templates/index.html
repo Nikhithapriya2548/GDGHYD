@@ -1,11 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampaignFlow Lite</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <h1>CampaignFlow Lite</h1>
+    <div class="app-container">
+        <header>
+            <h1>CampaignFlow Lite</h1>
+        </header>
+
+        <main>
+            <!-- 1. Campaign Form -->
+            <section class="panel" id="panel-campaign-form">
+                <h2>1. Create Campaign</h2>
+                <form id="campaign-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-desc">Description</label>
+                        <textarea id="product-desc" required></textarea>
+                    </div>
+                    <button type="submit" class="btn primary">Generate Creative Plan</button>
+                </form>
+            </section>
+
+            <!-- 2. Creative Director Panel -->
+            <section class="panel" id="panel-creative-director" style="display:none;">
+                <h2>2. Creative Director Plan</h2>
+                <div id="creative-plan-content" class="content-box"></div>
+            </section>
+
+            <!-- 3. Theme Selector -->
+            <section class="panel" id="panel-theme" style="display:none;">
+                <h2>3. Select Theme</h2>
+                <div class="form-group">
+                    <select id="theme-select">
+                        <option value="cinematic">Cinematic</option>
+                        <option value="minimalist">Minimalist</option>
+                        <option value="vibrant">Vibrant</option>
+                    </select>
+                </div>
+                <button id="btn-set-theme" class="btn">Set Theme</button>
+                <div id="theme-status" class="status-msg"></div>
+            </section>
+
+            <!-- 4. Upload Widget -->
+            <section class="panel" id="panel-upload" style="display:none;">
+                <h2>4. Upload Asset</h2>
+                <div class="form-group">
+                    <input type="file" id="asset-upload">
+                </div>
+                <button id="btn-upload" class="btn">Upload</button>
+                <div id="upload-status" class="status-msg"></div>
+            </section>
+
+            <!-- 5. Storyboard Display -->
+            <section class="panel" id="panel-storyboard" style="display:none;">
+                <h2>5. Storyboard</h2>
+                <button id="btn-generate-storyboard" class="btn primary">Generate Storyboard</button>
+                <div id="storyboard-gallery" class="gallery"></div>
+            </section>
+
+            <!-- 6. Pipeline Status Bar -->
+            <section class="panel" id="panel-video" style="display:none;">
+                <h2>6. Video Generation</h2>
+                <button id="btn-start-video" class="btn primary">Start Video Pipeline</button>
+                <div class="progress-container">
+                    <div id="video-progress-bar" class="progress-bar"></div>
+                </div>
+                <p id="video-status-text">Ready</p>
+            </section>
+
+            <!-- 7. Music Section -->
+            <section class="panel" id="panel-music" style="display:none;">
+                <h2>7. Music Generation</h2>
+                <button id="btn-generate-music" class="btn">Generate Music</button>
+                <div id="music-status" class="status-msg"></div>
+                <div id="music-player-container"></div>
+            </section>
+
+            <!-- 8. Final Preview -->
+            <section class="panel" id="panel-final" style="display:none;">
+                <h2>8. Final Preview</h2>
+                <button id="btn-get-final" class="btn primary">Load Final Preview</button>
+                <div id="final-preview-content" class="content-box"></div>
+            </section>
+
+            <!-- Static Shells for Continuity -->
+            <section class="panel" id="panel-static-shells">
+                <h2>Additional Tools (Static)</h2>
+                
+                <div class="continuity-badge">
+                    <span class="icon">✨</span> Continuity Ensured across assets
+                </div>
+                
+                <div class="variation-cards">
+                    <h3>Variations</h3>
+                    <div class="cards-grid">
+                        <div class="card">1:1 (Instagram)</div>
+                        <div class="card">9:16 (TikTok)</div>
+                    </div>
+                </div>
+
+                <div class="conversational-editor">
+                    <h3>Conversational Editor</h3>
+                    <div class="chat-input-group">
+                        <input type="text" placeholder="e.g. Make it more vibrant...">
+                        <button class="btn">Send</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
     <script src="/static/app.js"></script>
 </body>
 </html>
