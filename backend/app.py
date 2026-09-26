@@ -9,7 +9,12 @@ from services.prompt_templates import detect_language, build_image_prompt, build
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/static', template_folder='../frontend/templates')
+
+@app.route('/')
+def index():
+    from flask import render_template
+    return render_template('index.html')
 CORS(app)
 video_jobs = {}
 
@@ -187,6 +192,7 @@ def get_final(id): return jsonify({'video_url': '/static/output/final_video.mp4'
 if __name__ == '__main__':
     # Use 0.0.0.0 instead of localhost/127.0.0.1 for deployment
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+
 
 
 
