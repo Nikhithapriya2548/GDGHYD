@@ -42,7 +42,7 @@ def health_gemini_key():
         return jsonify({'gemini_api_key_valid': False, 'error': 'GEMINI_API_KEY is not set in environment'})
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-3.1-pro-preview')
         response = model.generate_content("Reply with the word 'OK'.")
         if response.text:
             return jsonify({'gemini_api_key_valid': True, 'error': None})
@@ -55,7 +55,7 @@ def create_campaign():
     campaign_id = str(uuid.uuid4())
     try:
         genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        model = genai.GenerativeModel('gemini-3.1-pro-preview')
         response = model.generate_content("You are a Creative Director. Generate a campaign plan in strict JSON. Keys: creative_direction, visual_style, recommended_theme, scene_descriptions (array of strings), music_mood. Provide ONLY valid JSON.")
         text = response.text.strip()
         if text.startswith('`json'): text = text[7:]
@@ -187,3 +187,9 @@ def get_final(id): return jsonify({'video_url': '/static/output/final_video.mp4'
 if __name__ == '__main__':
     # Use 0.0.0.0 instead of localhost/127.0.0.1 for deployment
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+
+
+
+
+
+
