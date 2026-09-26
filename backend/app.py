@@ -128,7 +128,9 @@ def storyboard(id):
         # Get the creative plan scenes for THIS specific campaign
         plan = campaign_store.get(id, {})
         scenes_list = plan.get('scene_descriptions', [])
+        theme = plan.get('theme', 'cinematic')
         base_prompt = scenes_list[0] if scenes_list else 'A cinematic scene.'
+        base_prompt = f"{base_prompt} with a {theme} theme and style."
         
         prompt = build_image_prompt(base_prompt, detect_language(base_prompt))
         
@@ -204,8 +206,13 @@ def video_start(id):
     job_id = str(uuid.uuid4())
     video_jobs[job_id] = {'status': 'processing', 'video_url': None}
     
-    req_data = request.get_json(silent=True, force=True) or {}
-    base_prompt = req_data.get('prompt', 'A cool video scene')
+    plan = campaign_store.get(id, {})
+    scenes_list = plan.get('scene_descriptions', [])
+    theme = plan.get('theme', 'cinematic')
+    
+    base_prompt = scenes_list[0] if scenes_list else 'A cool video scene'
+    base_prompt = f"{base_prompt} with a {theme} theme and style."
+    
     lang = detect_language(base_prompt)
     video_prompt = build_video_prompt(base_prompt, "cinematic pan", lang)
     
