@@ -103,7 +103,12 @@ Provide ONLY valid JSON, no markdown formatting."""
     return jsonify({'campaign_id': campaign_id, 'creative_plan': creative_plan})
 
 @app.route('/api/campaign/<id>/theme', methods=['POST'])
-def set_theme(id): return jsonify({'status': 'success', 'theme': 'Future Tech applied'})
+def set_theme(id):
+    req_data = request.get_json(silent=True, force=True) or {}
+    theme = req_data.get('theme', 'Future Tech')
+    if id in campaign_store:
+        campaign_store[id]['theme'] = theme
+    return jsonify({'status': 'success', 'theme': theme})
 
 @app.route('/api/campaign/<id>/upload', methods=['POST'])
 def upload_asset(id):
@@ -146,7 +151,7 @@ def storyboard(id):
         ]
     return jsonify({'scenes': scenes})
 
-def run_real_video_job(job_id, prompt):
+def run_real_video_job(job_id, prompt, campaign_id):
     try:
         from google import genai
         client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
@@ -178,15 +183,21 @@ def run_real_video_job(job_id, prompt):
         with open(output_file, 'wb') as f:
             f.write(r.content)
             
+        video_url = f'/static/uploads/{filename}'
         video_jobs[job_id]['status'] = 'completed'
-        video_jobs[job_id]['video_url'] = f'/static/uploads/{filename}'
+        video_jobs[job_id]['video_url'] = video_url
+        if campaign_id in campaign_store:
+            campaign_store[campaign_id]['video_url'] = video_url
     except Exception as e:
         logger.error(f"Real API call failed for Video, falling back to stub: {e}")
         time.sleep(5)
+        video_url = '/static/prebaked/variation_cinematic.mp4'
         video_jobs[job_id]['status'] = 'completed'
-        video_jobs[job_id]['video_url'] = '/static/prebaked/variation_cinematic.mp4'
+        video_jobs[job_id]['video_url'] = video_url
         video_jobs[job_id]['_stub_fallback'] = True
         video_jobs[job_id]['_stub_reason'] = str(e)
+        if campaign_id in campaign_store:
+            campaign_store[campaign_id]['video_url'] = video_url
 
 @app.route('/api/campaign/<id>/video/start', methods=['POST'])
 def video_start(id):
@@ -198,7 +209,7 @@ def video_start(id):
     lang = detect_language(base_prompt)
     video_prompt = build_video_prompt(base_prompt, "cinematic pan", lang)
     
-    threading.Thread(target=run_real_video_job, args=(job_id, video_prompt), daemon=True).start()
+    threading.Thread(target=run_real_video_job, args=(job_id, video_prompt, id), daemon=True).start()
     return jsonify({'job_id': job_id, 'status': 'started'})
 
 @app.route('/api/campaign/<id>/video/status/<job_id>', methods=['GET'])
@@ -239,11 +250,21 @@ def generate_music(id):
         with open(output_file, 'wb') as f:
             f.write(audio_bytes)
             
-        return jsonify({'audio_url': f'/static/uploads/{filename}', 'mood': mood, 'status': 'success'})
+        audio_url = f'/static/uploads/{filename}'
+        if id in campaign_store:
+            campaign_store[id]['audio_url'] = audio_url
+            campaign_store[id]['mood'] = mood
+            
+        return jsonify({'audio_url': audio_url, 'mood': mood, 'status': 'success'})
     except Exception as e:
         logger.error(f"Real API call failed for Audio, falling back to stub: {e}")
+        audio_url = '/static/prebaked/variation_cinematic.mp3'
+        if id in campaign_store:
+            campaign_store[id]['audio_url'] = audio_url
+            campaign_store[id]['mood'] = 'Synthwave'
+            
         return jsonify({
-            'audio_url': '/static/prebaked/variation_cinematic.mp3', 
+            'audio_url': audio_url, 
             'mood': 'Synthwave', 
             'status': 'success',
             '_stub_fallback': True,
@@ -251,7 +272,16 @@ def generate_music(id):
         })
 
 @app.route('/api/campaign/<id>/final', methods=['GET'])
-def get_final(id): return jsonify({'video_url': '/static/prebaked/variation_cinematic.mp4', 'audio_url': '/static/prebaked/variation_cinematic.mp3', 'images': [], 'status': 'ready'})
+def get_final(id):
+    plan = campaign_store.get(id, {})
+    return jsonify({
+        'video_url': plan.get('video_url'), 
+        'audio_url': plan.get('audio_url'), 
+        'theme': plan.get('theme', 'N/A'),
+        'mood': plan.get('mood', 'N/A'),
+        'images': [], 
+        'status': 'ready'
+    })
 
 if __name__ == '__main__':
     # Use 0.0.0.0 instead of localhost/127.0.0.1 for deployment
