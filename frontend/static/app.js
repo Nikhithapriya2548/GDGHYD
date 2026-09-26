@@ -129,7 +129,9 @@ document.getElementById('btn-start-video').addEventListener('click', async (e) =
     
     try {
         const res = await fetch(`/api/campaign/${currentCampaignId}/video/start`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: 'A cool video scene' })
         });
         const data = await res.json();
         pollVideoStatus(data.job_id);

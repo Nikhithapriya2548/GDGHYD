@@ -94,18 +94,23 @@ def upload_asset(id):
 @app.route('/api/campaign/<id>/storyboard', methods=['POST'])
 def storyboard(id):
     try:
-        from google.cloud import aiplatform
-        from vertexai.preview.vision_models import ImageGenerationModel
-        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
-        if not project_id: raise Exception("GOOGLE_CLOUD_PROJECT is missing")
-        aiplatform.init(project=project_id, location='us-central1')
-        model = ImageGenerationModel.from_pretrained("imagen-3.0-generate-001")
+        from google import genai
+        client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
         
-        req_data = request.json or {}
+        req_data = request.get_json(silent=True) or {}
         base_prompt = req_data.get('prompt', 'scene')
         prompt = build_image_prompt(base_prompt, detect_language(base_prompt))
         
-        model.generate_images(prompt=prompt, number_of_images=1)[0].save(location=os.path.join(UPLOAD_FOLDER, 'scene.png'))
+        result = client.models.generate_content(
+            model='gemini-3.1-flash-lite-image',
+            contents=prompt
+        )
+        
+        image_bytes = result.candidates[0].content.parts[0].inline_data.data
+        output_file = os.path.join(UPLOAD_FOLDER, 'scene.png')
+        with open(output_file, 'wb') as f:
+            f.write(image_bytes)
+            
         scenes = [{'scene_id': 's1', 'image_url': '/static/uploads/scene.png', 'prompt': prompt, 'source': 'real'}]
     except Exception as e:
         logger.error(f"Real API call failed for Storyboard, falling back to stub: {e}")
