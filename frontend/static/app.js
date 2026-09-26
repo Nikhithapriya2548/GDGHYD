@@ -63,7 +63,11 @@ document.getElementById('btn-set-theme').addEventListener('click', async (e) => 
 document.getElementById('btn-upload').addEventListener('click', async (e) => {
     if (!currentCampaignId) return;
     const fileInput = document.getElementById('asset-upload');
-    if (!fileInput.files[0]) return alert('Select a file');
+    if (!fileInput.files[0]) {
+        document.getElementById('upload-status').textContent = 'Skipped upload.';
+        showPanel('panel-storyboard');
+        return;
+    }
     
     const btn = e.target;
     btn.disabled = true;
@@ -84,6 +88,12 @@ document.getElementById('btn-upload').addEventListener('click', async (e) => {
     } finally {
         btn.disabled = false;
     }
+});
+
+document.getElementById('btn-skip-upload').addEventListener('click', () => {
+    if (!currentCampaignId) return;
+    document.getElementById('upload-status').textContent = 'Skipped upload.';
+    showPanel('panel-storyboard');
 });
 
 // 4. Generate Storyboard
