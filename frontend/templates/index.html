@@ -102,18 +102,21 @@
                 <div class="variation-cards">
                     <h3>Variations</h3>
                     <div class="cards-grid">
-                        <div class="card">1:1 (Instagram)</div>
-                        <div class="card">9:16 (TikTok)</div>
+                        <div class="card" id="card-1x1">1:1 (Instagram)</div>
+                        <div class="card" id="card-9x16">9:16 (TikTok)</div>
                     </div>
                 </div>
 
                 <div class="conversational-editor">
                     <h3>Conversational Editor</h3>
                     <div class="chat-input-group">
-                        <input type="text" placeholder="e.g. Make it more vibrant...">
-                        <button class="btn">Send</button>
+                        <input type="text" id="chat-input" placeholder="e.g. Make it more vibrant...">
+                        <button class="btn" id="btn-chat-send">Send</button>
                     </div>
                 </div>
+
+                <!-- Display area for prebaked files -->
+                <div id="variation-display" style="margin-top: 1.5rem; text-align: center;"></div>
             </section>
 
         </main>

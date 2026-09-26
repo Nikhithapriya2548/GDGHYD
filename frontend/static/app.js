@@ -210,3 +210,31 @@ document.getElementById('btn-get-final').addEventListener('click', async (e) => 
         btn.disabled = false;
     }
 });
+
+// Static Shells Wiring
+function displayPrebakedVideo(src, text) {
+    const display = document.getElementById('variation-display');
+    display.innerHTML = `
+        <p><strong>${text}</strong></p>
+        <video controls autoplay style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+            <source src="${src}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    `;
+}
+
+document.getElementById('card-1x1').addEventListener('click', () => {
+    displayPrebakedVideo('/static/prebaked/variation_1x1.mp4', 'Showing 1:1 Variation (Instagram)');
+});
+
+document.getElementById('card-9x16').addEventListener('click', () => {
+    displayPrebakedVideo('/static/prebaked/variation_9x16.mp4', 'Showing 9:16 Variation (TikTok)');
+});
+
+document.getElementById('btn-chat-send').addEventListener('click', () => {
+    const input = document.getElementById('chat-input');
+    if (!input.value.trim()) return;
+    displayPrebakedVideo('/static/prebaked/conversational_edit.mp4', `Showing result for: "${input.value}"`);
+    input.value = '';
+});
+

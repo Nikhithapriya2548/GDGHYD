@@ -107,8 +107,10 @@ textarea {
     padding: 1rem;
     border-radius: 4px;
     white-space: pre-wrap;
+    word-break: break-word;
     font-family: monospace;
     font-size: 0.9rem;
+    overflow-wrap: break-word;
 }
 
 .status-msg {
@@ -129,6 +131,7 @@ textarea {
     height: auto;
     border-radius: 4px;
     border: 1px solid var(--border);
+    object-fit: cover;
 }
 
 .scene-card {
@@ -136,11 +139,13 @@ textarea {
     padding: 0.5rem;
     border-radius: 4px;
     text-align: center;
+    overflow: hidden;
 }
 
 .scene-card p {
     font-size: 0.8rem;
     margin: 0.5rem 0 0;
+    word-wrap: break-word;
 }
 
 .progress-container {
@@ -160,36 +165,73 @@ textarea {
 }
 
 .continuity-badge {
-    display: inline-block;
-    background: #fdf4ff;
-    color: #c026d3;
-    padding: 0.25rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #fdf4ff, #fae8ff);
+    color: #a21caf;
+    padding: 0.5rem 1rem;
     border-radius: 9999px;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #f0abfc;
 }
 
 .cards-grid {
     display: flex;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .card {
     flex: 1;
-    border: 1px dashed var(--text-muted);
+    min-width: 120px;
+    border: 1px dashed var(--primary);
+    background: #eff6ff;
     padding: 1rem;
     text-align: center;
-    border-radius: 4px;
-    color: var(--text-muted);
+    border-radius: 6px;
+    color: var(--primary-hover);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.card:hover {
+    background: #dbeafe;
+    border-style: solid;
+    transform: translateY(-2px);
 }
 
 .chat-input-group {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .chat-input-group input {
     flex: 1;
+    min-width: 200px;
 }
+
+/* Mobile stacking and polish */
+@media (max-width: 600px) {
+    .app-container {
+        padding: 1rem;
+    }
+    
+    .cards-grid {
+        flex-direction: column;
+    }
+    
+    .chat-input-group {
+        flex-direction: column;
+    }
+    
+    .chat-input-group button {
+        width: 100%;
+    }
+}
+
