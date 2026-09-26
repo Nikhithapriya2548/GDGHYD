@@ -151,17 +151,32 @@ def run_real_video_job(job_id, prompt):
         from google import genai
         client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
         
-        result = client.models.generate_content(
-            model='gemini-omni-1.1-flash',
-            contents=prompt
+        operation = client.models.generate_videos(
+            model='veo-3.1-generate-preview',
+            prompt=prompt
         )
         
-        # Assuming the video comes back in the same way as an image or audio blob
-        video_bytes = result.candidates[0].content.parts[0].inline_data.data
+        while not operation.done:
+            time.sleep(5)
+            operation = client.operations.get(operation=operation)
+            
+        if operation.error:
+            raise Exception(f"Video generation failed: {operation.error}")
+            
+        videos = operation.result.generated_videos
+        if not videos:
+            raise Exception("No videos returned.")
+            
+        uri = videos[0].video.uri
+        
+        r = requests.get(uri, headers={'x-goog-api-key': os.environ.get('GEMINI_API_KEY')})
+        if r.status_code != 200:
+            raise Exception(f"Failed to download video: {r.status_code} {r.text}")
+            
         filename = f'video_{uuid.uuid4().hex[:8]}.mp4'
         output_file = os.path.join(UPLOAD_FOLDER, filename)
         with open(output_file, 'wb') as f:
-            f.write(video_bytes)
+            f.write(r.content)
             
         video_jobs[job_id]['status'] = 'completed'
         video_jobs[job_id]['video_url'] = f'/static/uploads/{filename}'
