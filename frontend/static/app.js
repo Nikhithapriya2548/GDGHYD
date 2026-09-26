@@ -203,9 +203,26 @@ document.getElementById('btn-get-final').addEventListener('click', async (e) => 
         const res = await fetch(`/api/campaign/${currentCampaignId}/final`);
         const data = await res.json();
         
-        document.getElementById('final-preview-content').textContent = JSON.stringify(data, null, 2);
+        let htmlContent = `<div style="text-align: center;">
+            <p><strong>Theme:</strong> ${data.theme || 'N/A'}</p>
+            <p><strong>Mood:</strong> ${data.mood || 'N/A'}</p>`;
+            
+        if (data.video_url) {
+            htmlContent += `
+            <video controls style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border); margin-top: 1rem;">
+                <source src="${data.video_url}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>`;
+        } else {
+            htmlContent += `<p style="color: red;">No video URL returned.</p>`;
+        }
+        
+        htmlContent += `</div>`;
+        document.getElementById('final-preview-content').innerHTML = htmlContent;
+        
     } catch (err) {
         console.error(err);
+        document.getElementById('final-preview-content').innerHTML = `<p style="color: red;">Error loading preview.</p>`;
     } finally {
         btn.disabled = false;
     }
