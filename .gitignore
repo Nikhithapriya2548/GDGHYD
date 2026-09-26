@@ -1,0 +1,7 @@
+.env
+__pycache__/
+node_modules/
+frontend/static/uploads/*
+!frontend/static/uploads/.gitkeep
+frontend/static/output/*
+!frontend/static/output/.gitkeep
