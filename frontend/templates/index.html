@@ -3,124 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampaignFlow Lite</title>
+    <title>CampaignFlow - AI Creative Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <h1>CampaignFlow Lite</h1>
-        </header>
+    <header class="app-header">
+        <div class="header-left">
+            <span class="logo-mark"></span>
+            <span class="logo-text">CampaignFlow Lite</span>
+        </div>
+        <div class="header-center">
+            <span class="context-label">CREATIVE WORKSPACE</span>
+        </div>
+        <div class="header-right">
+            <!-- Reserved for actions -->
+        </div>
+    </header>
 
-        <main>
+    <div class="app-container">
+        
+        <!-- Pipeline Tracker (Dynamic states handled via CSS/HTML mostly, but we'll put it here) -->
+        <div class="pipeline-tracker" id="pipeline-tracker">
+            <div class="pipeline-stage active" id="stage-plan">
+                <div class="stage-dot"></div>
+                <span>Plan</span>
+            </div>
+            <div class="pipeline-stage" id="stage-storyboard">
+                <div class="stage-dot"></div>
+                <span>Storyboard</span>
+            </div>
+            <div class="pipeline-stage" id="stage-video">
+                <div class="stage-dot"></div>
+                <span>Video</span>
+            </div>
+            <div class="pipeline-stage" id="stage-music">
+                <div class="stage-dot"></div>
+                <span>Music</span>
+            </div>
+            <div class="pipeline-stage" id="stage-final">
+                <div class="stage-dot"></div>
+                <span>Final</span>
+            </div>
+        </div>
+
+        <main class="workspace">
             <!-- 1. Campaign Form -->
-            <section class="panel" id="panel-campaign-form">
-                <h2>1. Create Campaign</h2>
+            <section class="panel focus-panel" id="panel-campaign-form">
+                <div class="section-label">CREATE CAMPAIGN</div>
+                <h2 class="hero-heading">Turn an idea into a campaign.</h2>
+                <p class="hero-sub">Describe your vision and our AI will architect the complete creative plan.</p>
+                
                 <form id="campaign-form">
                     <div class="form-group">
-                        <label for="product-name">Product Name</label>
-                        <input type="text" id="product-name" required>
+                        <input type="text" id="product-name" placeholder="Enter your product name" required>
                     </div>
                     <div class="form-group">
-                        <label for="product-desc">Description</label>
-                        <textarea id="product-desc" required></textarea>
+                        <textarea id="product-desc" placeholder="Describe your product, audience, message, or campaign idea..." required></textarea>
                     </div>
-                    <button type="submit" class="btn primary">Generate Creative Plan</button>
+                    <button type="submit" class="btn primary btn-large">Generate Creative Plan</button>
                 </form>
             </section>
 
             <!-- 2. Creative Director Panel -->
-            <section class="panel" id="panel-creative-director" style="display:none;">
-                <h2>2. Creative Director Plan</h2>
-                <div id="creative-plan-content" class="content-box"></div>
+            <section class="panel glass-panel" id="panel-creative-director" style="display:none;">
+                <div class="section-label">AI CREATIVE PLAN</div>
+                <div id="creative-plan-content" class="content-box premium-json"></div>
             </section>
 
             <!-- 3. Theme Selector -->
-            <section class="panel" id="panel-theme" style="display:none;">
-                <h2>3. Select Theme</h2>
-                <div class="form-group">
-                    <select id="theme-select">
-                        <option value="cinematic">Cinematic</option>
-                        <option value="minimalist">Minimalist</option>
-                        <option value="vibrant">Vibrant</option>
-                    </select>
-                </div>
-                <button id="btn-set-theme" class="btn">Set Theme</button>
-                <div id="theme-status" class="status-msg"></div>
-            </section>
-
-            <!-- 4. Upload Widget -->
-            <section class="panel" id="panel-upload" style="display:none;">
-                <h2>4. Upload Asset</h2>
-                <div class="form-group">
-                    <input type="file" id="asset-upload">
-                </div>
-                <button id="btn-upload" class="btn">Upload</button>
-                <div id="upload-status" class="status-msg"></div>
-            </section>
-
-            <!-- 5. Storyboard Display -->
-            <section class="panel" id="panel-storyboard" style="display:none;">
-                <h2>5. Storyboard</h2>
-                <button id="btn-generate-storyboard" class="btn primary">Generate Storyboard</button>
-                <div id="storyboard-gallery" class="gallery"></div>
-            </section>
-
-            <!-- 6. Pipeline Status Bar -->
-            <section class="panel" id="panel-video" style="display:none;">
-                <h2>6. Video Generation</h2>
-                <button id="btn-start-video" class="btn primary">Start Video Pipeline</button>
-                <div class="progress-container">
-                    <div id="video-progress-bar" class="progress-bar"></div>
-                </div>
-                <p id="video-status-text">Ready</p>
-            </section>
-
-            <!-- 7. Music Section -->
-            <section class="panel" id="panel-music" style="display:none;">
-                <h2>7. Music Generation</h2>
-                <button id="btn-generate-music" class="btn">Generate Music</button>
-                <div id="music-status" class="status-msg"></div>
-                <div id="music-player-container"></div>
-            </section>
-
-            <!-- 8. Final Preview -->
-            <section class="panel" id="panel-final" style="display:none;">
-                <h2>8. Final Preview</h2>
-                <button id="btn-get-final" class="btn primary">Load Final Preview</button>
-                <div id="final-preview-content" class="content-box"></div>
-            </section>
-
-            <!-- Static Shells for Continuity -->
-            <section class="panel" id="panel-static-shells">
-                <h2>Additional Tools (Static)</h2>
+            <section class="panel glass-panel" id="panel-theme" style="display:none;">
+                <div class="section-label">AESTHETIC</div>
+                <h2>Select a Creative Theme</h2>
                 
-                <div class="continuity-badge">
-                    <span class="icon">✨</span> Continuity Ensured across assets
-                </div>
-                
-                <div class="variation-cards">
-                    <h3>Variations</h3>
-                    <div class="cards-grid">
-                        <div class="card" id="card-1x1">1:1 (Instagram)</div>
-                        <div class="card" id="card-9x16">9:16 (TikTok)</div>
+                <!-- Hidden original select to preserve JS logic -->
+                <select id="theme-select" style="display: none;">
+                    <option value="cinematic" selected>Cinematic</option>
+                    <option value="anime">Anime</option>
+                    <option value="luxury">Luxury</option>
+                    <option value="futuristic">Futuristic</option>
+                    <option value="minimal">Minimal</option>
+                </select>
+
+                <div class="theme-cards">
+                    <div class="theme-card active" data-value="cinematic">
+                        <div class="theme-visual cinematic-bg"></div>
+                        <div class="theme-info">
+                            <div class="theme-name">Cinematic</div>
+                            <div class="theme-desc">Dramatic lighting · film-grade atmosphere</div>
+                        </div>
+                    </div>
+                    <div class="theme-card" data-value="anime">
+                        <div class="theme-visual anime-bg"></div>
+                        <div class="theme-info">
+                            <div class="theme-name">Anime</div>
+                            <div class="theme-desc">Vibrant colors · energetic illustration</div>
+                        </div>
+                    </div>
+                    <div class="theme-card" data-value="luxury">
+                        <div class="theme-visual luxury-bg"></div>
+                        <div class="theme-info">
+                            <div class="theme-name">Luxury</div>
+                            <div class="theme-desc">Gold accents · deep shadows</div>
+                        </div>
+                    </div>
+                    <div class="theme-card" data-value="futuristic">
+                        <div class="theme-visual futuristic-bg"></div>
+                        <div class="theme-info">
+                            <div class="theme-name">Futuristic</div>
+                            <div class="theme-desc">Neon glow · technological edge</div>
+                        </div>
+                    </div>
+                    <div class="theme-card" data-value="minimal">
+                        <div class="theme-visual minimal-bg"></div>
+                        <div class="theme-info">
+                            <div class="theme-name">Minimal</div>
+                            <div class="theme-desc">Clean lines · neutral palettes</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="conversational-editor">
-                    <h3>Conversational Editor</h3>
-                    <div class="chat-input-group">
-                        <input type="text" id="chat-input" placeholder="e.g. Make it more vibrant...">
-                        <button class="btn" id="btn-chat-send">Send</button>
+                <div class="panel-actions">
+                    <button id="btn-set-theme" class="btn primary">Apply Theme</button>
+                    <div id="theme-status" class="status-msg"></div>
+                </div>
+            </section>
+
+            <!-- 4. Upload Widget -->
+            <section class="panel glass-panel" id="panel-upload" style="display:none;">
+                <div class="section-label">PRODUCT ASSET</div>
+                <h2>Upload Reference (Optional)</h2>
+                <p class="muted-text">Upload a product image to keep the campaign visually grounded.</p>
+                <div class="dropzone">
+                    <input type="file" id="asset-upload" class="file-input">
+                    <div class="dropzone-content">
+                        <span class="dropzone-icon">+</span>
+                        <span>Click to browse or drag image here</span>
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button id="btn-upload" class="btn secondary">Upload Asset</button>
+                    <div id="upload-status" class="status-msg"></div>
+                </div>
+            </section>
+
+            <!-- 5. Storyboard Display -->
+            <section class="panel glass-panel" id="panel-storyboard" style="display:none;">
+                <div class="section-label">VISUALIZATION</div>
+                <h2>Storyboard</h2>
+                <div class="panel-actions">
+                    <button id="btn-generate-storyboard" class="btn primary">Generate Storyboard</button>
+                </div>
+                <div id="storyboard-gallery" class="gallery premium-gallery"></div>
+            </section>
+
+            <!-- 6. Pipeline Status Bar (Video) -->
+            <section class="panel glass-panel" id="panel-video" style="display:none;">
+                <div class="section-label">MOTION</div>
+                <h2>Video Generation</h2>
+                <div class="panel-actions">
+                    <button id="btn-start-video" class="btn primary">Render Video</button>
+                </div>
+                <div class="progress-container premium-progress">
+                    <div id="video-progress-bar" class="progress-bar"></div>
+                </div>
+                <p id="video-status-text" class="status-text">Ready</p>
+            </section>
+
+            <!-- 7. Music Section -->
+            <section class="panel glass-panel" id="panel-music" style="display:none;">
+                <div class="section-label">AUDIO</div>
+                <h2>Matching Score</h2>
+                <div class="panel-actions">
+                    <button id="btn-generate-music" class="btn primary">Compose Audio</button>
+                    <div id="music-status" class="status-msg"></div>
+                </div>
+                <div id="music-player-container" class="premium-audio-player"></div>
+            </section>
+
+            <!-- 8. Final Preview -->
+            <section class="panel glass-panel hero-panel" id="panel-final" style="display:none;">
+                <div class="section-label">CAMPAIGN READY</div>
+                <h2>Final Review</h2>
+                <div class="panel-actions">
+                    <button id="btn-get-final" class="btn primary btn-large">Load Final Output</button>
+                </div>
+                <div id="final-preview-content" class="content-box hero-video-container"></div>
+            </section>
+
+            <!-- Separator -->
+            <div class="section-divider"></div>
+
+            <!-- Static Shells for Continuity -->
+            <section class="panel secondary-panel" id="panel-static-shells">
+                <div class="tools-header">
+                    <span class="tools-badge">ILLUSTRATIVE &mdash; USES OUTPUTS FROM THE SAME CAMPAIGN</span>
+                </div>
+                
+                <div class="tools-grid">
+                    <!-- Continuity -->
+                    <div class="tool-card continuity-tool">
+                        <div class="tool-label">CONTINUITY</div>
+                        <div class="continuity-status">
+                            <div class="status-dot green"></div> Connected
+                        </div>
+                        <p class="tool-desc">Maintains visual consistency across campaign assets.</p>
+                    </div>
+
+                    <!-- Variations -->
+                    <div class="tool-card variations-tool">
+                        <div class="tool-label">CREATIVE VARIATIONS</div>
+                        <p class="tool-desc">Explore alternate creative directions for different channels.</p>
+                        <div class="cards-grid aspect-cards">
+                            <div class="card" id="card-1x1">
+                                <span class="aspect-ratio">1:1</span>
+                                <span class="aspect-name">Instagram</span>
+                            </div>
+                            <div class="card" id="card-9x16">
+                                <span class="aspect-ratio">9:16</span>
+                                <span class="aspect-name">TikTok</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversational Editor -->
+                    <div class="tool-card editor-tool">
+                        <div class="tool-label">CONVERSATIONAL EDITOR</div>
+                        <p class="tool-desc">Refine the campaign using natural language.</p>
+                        <div class="chat-input-group premium-chat">
+                            <input type="text" id="chat-input" placeholder="e.g. Make it more vibrant...">
+                            <button class="btn primary" id="btn-chat-send">Send</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Display area for prebaked files -->
-                <div id="variation-display" style="margin-top: 1.5rem; text-align: center;"></div>
+                <div id="variation-display" class="variation-display-area"></div>
             </section>
 
         </main>
     </div>
+
+    <!-- UI Only Script for Theme Selector -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeCards = document.querySelectorAll('.theme-card');
+            const hiddenSelect = document.getElementById('theme-select');
+
+            themeCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Update visual state
+                    themeCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    
+                    // Update hidden select
+                    const value = card.getAttribute('data-value');
+                    hiddenSelect.value = value;
+                    
+                    // Dispatch change event just in case
+                    hiddenSelect.dispatchEvent(new Event('change'));
+                });
+            });
+            
+            // Simple pipeline tracker update logic (UI visual only)
+            const updatePipeline = (stage) => {
+                const stages = ['stage-plan', 'stage-storyboard', 'stage-video', 'stage-music', 'stage-final'];
+                let passed = true;
+                stages.forEach(s => {
+                    const el = document.getElementById(s);
+                    if (passed) el.classList.add('active');
+                    else el.classList.remove('active');
+                    if (s === stage) passed = false;
+                });
+            };
+            
+            // Hook into DOM changes to update pipeline visually (Optional UI enhancement)
+            const observer = new MutationObserver(() => {
+                if (document.getElementById('panel-final').style.display !== 'none') updatePipeline('stage-final');
+                else if (document.getElementById('panel-music').style.display !== 'none') updatePipeline('stage-music');
+                else if (document.getElementById('panel-video').style.display !== 'none') updatePipeline('stage-video');
+                else if (document.getElementById('panel-storyboard').style.display !== 'none') updatePipeline('stage-storyboard');
+                else updatePipeline('stage-plan');
+            });
+            
+            observer.observe(document.getElementById('panel-final'), { attributes: true, attributeFilter: ['style'] });
+            observer.observe(document.getElementById('panel-music'), { attributes: true, attributeFilter: ['style'] });
+            observer.observe(document.getElementById('panel-video'), { attributes: true, attributeFilter: ['style'] });
+            observer.observe(document.getElementById('panel-storyboard'), { attributes: true, attributeFilter: ['style'] });
+        });
+    </script>
     <script src="/static/app.js"></script>
 </body>
 </html>
