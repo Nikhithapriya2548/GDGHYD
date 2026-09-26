@@ -1,5 +1,4 @@
 import os, time, threading, uuid, json, requests, logging
-import google.generativeai as genai
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -30,7 +29,7 @@ os.makedirs(PREBAKED_FOLDER, exist_ok=True)
 
 # 1. Audit Env Vars on Startup
 def check_env_vars():
-    required_vars = ['GEMINI_API_KEY', 'GOOGLE_CLOUD_PROJECT', 'GCP_ACCESS_TOKEN']
+    required_vars = ['GEMINI_API_KEY']
     logger.info("--- Environment Variable Audit ---")
     for var in required_vars:
         is_set = bool(os.environ.get(var))
@@ -46,9 +45,12 @@ def health_gemini_key():
     if not api_key:
         return jsonify({'gemini_api_key_valid': False, 'error': 'GEMINI_API_KEY is not set in environment'})
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-3.1-pro-preview')
-        response = model.generate_content("Reply with the word 'OK'.")
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-3.1-pro-preview',
+            contents="Reply with the word 'OK'."
+        )
         if response.text:
             return jsonify({'gemini_api_key_valid': True, 'error': None})
     except Exception as e:
@@ -65,8 +67,8 @@ def create_campaign():
     product_desc = req_data.get('product_desc', 'A great product.')
     
     try:
-        genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
-        model = genai.GenerativeModel('gemini-3.1-pro-preview')
+        from google import genai
+        client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
         
         prompt = f"""You are a Creative Director. Generate a campaign plan for this product:
 Product Name: {product_name}
@@ -76,7 +78,10 @@ Provide the output in strict JSON.
 Keys required: creative_direction, visual_style, recommended_theme, scene_descriptions (array of strings), music_mood.
 Provide ONLY valid JSON, no markdown formatting."""
         
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-3.1-pro-preview',
+            contents=prompt
+        )
         text = response.text.strip()
         if text.startswith('`json'): text = text[7:]
         if text.startswith('```json'): text = text[7:]
@@ -143,18 +148,23 @@ def storyboard(id):
 
 def run_real_video_job(job_id, prompt):
     try:
-        access_token = os.environ.get("GCP_ACCESS_TOKEN")
-        if not access_token: raise Exception("GCP_ACCESS_TOKEN is missing")
-        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
-        if not project_id: raise Exception("GOOGLE_CLOUD_PROJECT is missing")
+        from google import genai
+        client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
         
-        url = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/veo-1.0:predict"
-        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-        resp = requests.post(url, json={"instances": [{"prompt": prompt}]}, headers=headers)
-        if resp.status_code != 200: raise Exception(f"Video API returned {resp.status_code}: {resp.text}")
+        result = client.models.generate_content(
+            model='gemini-omni-1.1-flash',
+            contents=prompt
+        )
+        
+        # Assuming the video comes back in the same way as an image or audio blob
+        video_bytes = result.candidates[0].content.parts[0].inline_data.data
+        filename = f'video_{uuid.uuid4().hex[:8]}.mp4'
+        output_file = os.path.join(UPLOAD_FOLDER, filename)
+        with open(output_file, 'wb') as f:
+            f.write(video_bytes)
             
         video_jobs[job_id]['status'] = 'completed'
-        video_jobs[job_id]['video_url'] = '/static/uploads/real_video.mp4'
+        video_jobs[job_id]['video_url'] = f'/static/uploads/{filename}'
     except Exception as e:
         logger.error(f"Real API call failed for Video, falling back to stub: {e}")
         time.sleep(5)
@@ -168,7 +178,7 @@ def video_start(id):
     job_id = str(uuid.uuid4())
     video_jobs[job_id] = {'status': 'processing', 'video_url': None}
     
-    req_data = request.json or {}
+    req_data = request.get_json(silent=True, force=True) or {}
     base_prompt = req_data.get('prompt', 'A cool video scene')
     lang = detect_language(base_prompt)
     video_prompt = build_video_prompt(base_prompt, "cinematic pan", lang)
@@ -188,21 +198,33 @@ def video_status(id, job_id):
 @app.route('/api/campaign/<id>/music', methods=['POST'])
 def generate_music(id):
     try:
-        access_token = os.environ.get("GCP_ACCESS_TOKEN")
-        if not access_token: raise Exception("GCP_ACCESS_TOKEN is missing")
-        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
-        if not project_id: raise Exception("GOOGLE_CLOUD_PROJECT is missing")
-        
-        req_data = request.json or {}
+        req_data = request.get_json(silent=True, force=True) or {}
         mood = req_data.get('mood', 'energetic')
         audio_prompt = build_audio_prompt(mood, detect_language(mood))
         
-        url = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/lyria:predict"
-        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-        resp = requests.post(url, json={"instances": [{"prompt": audio_prompt}]}, headers=headers)
+        from google import genai
+        client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
         
-        if resp.status_code != 200: raise Exception(f"Audio API returned {resp.status_code}")
-        return jsonify({'audio_url': '/static/uploads/real_bgm.mp3', 'mood': mood, 'status': 'success'})
+        result = client.models.generate_content(
+            model='lyria-3.5',
+            contents=audio_prompt
+        )
+        
+        audio_bytes = None
+        for part in result.candidates[0].content.parts:
+            if part.inline_data:
+                audio_bytes = part.inline_data.data
+                break
+                
+        if not audio_bytes:
+            raise Exception("No audio blob returned by Lyria")
+            
+        filename = f'bgm_{uuid.uuid4().hex[:8]}.mp3'
+        output_file = os.path.join(UPLOAD_FOLDER, filename)
+        with open(output_file, 'wb') as f:
+            f.write(audio_bytes)
+            
+        return jsonify({'audio_url': f'/static/uploads/{filename}', 'mood': mood, 'status': 'success'})
     except Exception as e:
         logger.error(f"Real API call failed for Audio, falling back to stub: {e}")
         return jsonify({
