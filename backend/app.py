@@ -137,7 +137,7 @@ def run_real_video_job(job_id, prompt):
         logger.error(f"Real API call failed for Video, falling back to stub: {e}")
         time.sleep(5)
         video_jobs[job_id]['status'] = 'completed'
-        video_jobs[job_id]['video_url'] = '/static/output/final_video.mp4'
+        video_jobs[job_id]['video_url'] = '/static/prebaked/variation_cinematic.mp4'
         video_jobs[job_id]['_stub_fallback'] = True
         video_jobs[job_id]['_stub_reason'] = str(e)
 
@@ -184,7 +184,7 @@ def generate_music(id):
     except Exception as e:
         logger.error(f"Real API call failed for Audio, falling back to stub: {e}")
         return jsonify({
-            'audio_url': '/static/output/bgm.mp3', 
+            'audio_url': '/static/prebaked/variation_cinematic.mp3', 
             'mood': 'Synthwave', 
             'status': 'success',
             '_stub_fallback': True,
@@ -192,7 +192,7 @@ def generate_music(id):
         })
 
 @app.route('/api/campaign/<id>/final', methods=['GET'])
-def get_final(id): return jsonify({'video_url': '/static/output/final_video.mp4', 'audio_url': '/static/output/bgm.mp3', 'images': [], 'status': 'ready'})
+def get_final(id): return jsonify({'video_url': '/static/prebaked/variation_cinematic.mp4', 'audio_url': '/static/prebaked/variation_cinematic.mp3', 'images': [], 'status': 'ready'})
 
 if __name__ == '__main__':
     # Use 0.0.0.0 instead of localhost/127.0.0.1 for deployment
